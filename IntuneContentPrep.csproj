@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>IntuneContentPrep</RootNamespace>
+    <AssemblyName>IntuneContentPrep</AssemblyName>
+    <ApplicationIcon>IntuneContentPrep.ico</ApplicationIcon>
+
+    <!-- ThemeMode (the WPF Fluent light/dark theme switch) is still shipped as an
+         experimental API in .NET 10; WPF0001 is its opt-in diagnostic. -->
+    <NoWarn>$(NoWarn);WPF0001</NoWarn>
+
+    <!-- Version stamped into the exe (Details tab) -->
+    <Version>1.1.0.0</Version>
+    <FileVersion>1.1.0.0</FileVersion>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <Company>Sloan</Company>
+    <Product>Intune Content Prep</Product>
+    <AssemblyTitle>Intune Content Prep</AssemblyTitle>
+    <Description>GUI front end for IntuneWinAppUtil.exe and PSAppDeployToolkit v4 packages</Description>
+
+    <!-- Keep the build lean: no satellite localization assemblies -->
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Embedded so the window (and taskbar) icon resolves from the single-file
+         exe; <ApplicationIcon> only covers the shell icon on the file itself. -->
+    <Resource Include="IntuneContentPrep.ico" />
+  </ItemGroup>
+
+</Project>

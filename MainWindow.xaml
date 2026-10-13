@@ -1,0 +1,135 @@
+<Window x:Class="IntuneContentPrep.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Intune Content Prep"
+        Icon="/IntuneContentPrep.ico"
+        Width="780" MinWidth="560"
+        SizeToContent="Height"
+        WindowStartupLocation="CenterScreen"
+        FontSize="14"
+        FocusManager.FocusedElement="{Binding ElementName=SourceBox}"
+        Loaded="Window_Loaded">
+
+    <Grid Margin="20,18,20,20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>   <!-- Source folder -->
+            <RowDefinition Height="Auto"/>   <!-- Source hint -->
+            <RowDefinition Height="Auto"/>   <!-- Output folder -->
+            <RowDefinition Height="Auto"/>   <!-- Output hint -->
+            <RowDefinition Height="Auto"/>   <!-- IntuneWinAppUtil.exe -->
+            <RowDefinition Height="Auto"/>   <!-- Tool hint -->
+            <RowDefinition Height="Auto"/>   <!-- Create / Exit -->
+            <RowDefinition Height="*"/>      <!-- Terminal -->
+        </Grid.RowDefinitions>
+
+        <!-- Source -->
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Source folder"
+                   VerticalAlignment="Center" Margin="0,0,14,0"/>
+        <TextBox x:Name="SourceBox" Grid.Row="0" Grid.Column="1"
+                 ToolTip="The PSAppDeployToolkit v4 package folder (the one containing Invoke-AppDeployToolkit.exe)"
+                 AllowDrop="True"
+                 PreviewDragEnter="Folder_PreviewDragOver" PreviewDragOver="Folder_PreviewDragOver"
+                 PreviewDrop="Folder_PreviewDrop"
+                 TextChanged="Input_TextChanged"/>
+        <Button x:Name="SourceBrowseButton" Grid.Row="0" Grid.Column="2" Content="Browse…"
+                MinWidth="96" Margin="8,0,0,0" Click="SourceBrowse_Click"/>
+        <TextBlock x:Name="SourceHint" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
+                   FontSize="12" Margin="2,5,0,0" TextTrimming="CharacterEllipsis"
+                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+
+        <!-- Output -->
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Output folder"
+                   VerticalAlignment="Center" Margin="0,14,14,0"/>
+        <TextBox x:Name="OutputBox" Grid.Row="2" Grid.Column="1" Margin="0,14,0,0"
+                 ToolTip="Where the .intunewin file is written (created if it doesn't exist)"
+                 AllowDrop="True"
+                 PreviewDragEnter="Folder_PreviewDragOver" PreviewDragOver="Folder_PreviewDragOver"
+                 PreviewDrop="Folder_PreviewDrop"
+                 TextChanged="Input_TextChanged"/>
+        <Button x:Name="OutputBrowseButton" Grid.Row="2" Grid.Column="2" Content="Browse…"
+                MinWidth="96" Margin="8,14,0,0" Click="OutputBrowse_Click"/>
+        <TextBlock x:Name="OutputHint" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2"
+                   FontSize="12" Margin="2,5,0,0" TextTrimming="CharacterEllipsis"
+                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+
+        <!-- Tool -->
+        <TextBlock Grid.Row="4" Grid.Column="0" Text="IntuneWinAppUtil.exe"
+                   VerticalAlignment="Center" Margin="0,14,14,0"/>
+        <TextBox x:Name="ToolBox" Grid.Row="4" Grid.Column="1" Margin="0,14,0,0"
+                 ToolTip="The Microsoft Win32 Content Prep Tool. Remembered between launches."
+                 AllowDrop="True"
+                 PreviewDragEnter="Tool_PreviewDragOver" PreviewDragOver="Tool_PreviewDragOver"
+                 PreviewDrop="Tool_PreviewDrop"
+                 TextChanged="Input_TextChanged"/>
+        <Button x:Name="ToolBrowseButton" Grid.Row="4" Grid.Column="2" Content="Browse…"
+                MinWidth="96" Margin="8,14,0,0" Click="ToolBrowse_Click"/>
+        <TextBlock x:Name="ToolHint" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2"
+                   FontSize="12" Margin="2,5,0,0" TextTrimming="CharacterEllipsis"
+                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+
+        <!-- Actions -->
+        <StackPanel Grid.Row="6" Grid.ColumnSpan="3" Orientation="Horizontal"
+                    HorizontalAlignment="Right" Margin="0,18,0,0">
+            <!-- Explicit AccessText: the Fluent accent style's presenter doesn't parse
+                 "_" access keys in plain string content, so it would show literally. -->
+            <Button x:Name="CreateButton" MinWidth="96" IsDefault="True"
+                    Style="{DynamicResource AccentButtonStyle}" Click="Create_Click">
+                <AccessText Text="_Create"/>
+            </Button>
+            <Button x:Name="ExitButton" Content="E_xit" MinWidth="96" Margin="8,0,0,0"
+                    Click="Exit_Click"/>
+        </StackPanel>
+
+        <!-- Terminal: hidden until the first Create, then the window grows to show it -->
+        <Border x:Name="TerminalPanel" Grid.Row="7" Grid.ColumnSpan="3" Margin="0,18,0,0"
+                Visibility="Collapsed" CornerRadius="8" BorderThickness="1"
+                BorderBrush="{StaticResource TerminalBorder}"
+                Background="{StaticResource TerminalBackground}">
+            <DockPanel>
+                <Border DockPanel.Dock="Top" Background="{StaticResource TerminalHeader}"
+                        CornerRadius="7,7,0,0" Padding="12,7">
+                    <DockPanel>
+                        <TextBlock x:Name="TerminalStatus" DockPanel.Dock="Right" FontSize="12"
+                                   VerticalAlignment="Center"
+                                   Foreground="{StaticResource TerminalDim}"/>
+                        <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" Text="&#xE756;"
+                                   FontSize="13" VerticalAlignment="Center" Margin="0,1,8,0"
+                                   Foreground="{StaticResource TerminalText}"/>
+                        <TextBlock Text="IntuneWinAppUtil.exe" FontSize="12" VerticalAlignment="Center"
+                                   Foreground="{StaticResource TerminalText}"/>
+                    </DockPanel>
+                </Border>
+
+                <ProgressBar x:Name="RunProgress" DockPanel.Dock="Top" IsIndeterminate="True"
+                             Height="3" MinHeight="3" Visibility="Hidden"/>
+
+                <!-- Read-only RichTextBox rather than TextBox so lines can be coloured and the
+                     finished package path can be a link. The template is replaced locally so the
+                     Fluent control chrome (fill, focus underline) doesn't paint over the console. -->
+                <RichTextBox x:Name="Terminal" IsReadOnly="True" IsDocumentEnabled="True"
+                             Background="Transparent" BorderThickness="0" Padding="12,8,6,10"
+                             SelectionBrush="{StaticResource TerminalSelection}"
+                             VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <RichTextBox.Template>
+                        <ControlTemplate TargetType="RichTextBox">
+                            <ScrollViewer x:Name="PART_ContentHost" Focusable="False"
+                                          Padding="{TemplateBinding Padding}"
+                                          VerticalScrollBarVisibility="{TemplateBinding VerticalScrollBarVisibility}"
+                                          HorizontalScrollBarVisibility="{TemplateBinding HorizontalScrollBarVisibility}"/>
+                        </ControlTemplate>
+                    </RichTextBox.Template>
+                    <!-- Font and alignment set here, not on the RichTextBox: a FlowDocument has its
+                         own defaults (serif, justified) that don't pick those up. -->
+                    <FlowDocument x:Name="TerminalDocument" PagePadding="0" TextAlignment="Left"
+                                  FontFamily="Cascadia Mono, Consolas" FontSize="12.5"
+                                  Foreground="{StaticResource TerminalText}"/>
+                </RichTextBox>
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>
